@@ -104,6 +104,12 @@ R: "Implementei um pipeline de CI/CD usando GitHub Actions para garantir a integ
    - Cache: Cache do npm para node_modules.
    - Passos: Instalação limpa (`npm ci`), verificação de qualidade de código (`npm run lint`) e build de produção (`npm run build`).
 
+4. Deploy (Docker Hub):
+   - Adicionei etapas para construir e enviar as imagens Docker automaticamente após o sucesso dos testes.
+   - Utiliza `docker/login-action` com credenciais seguras (Secrets).
+   - Utiliza `docker/build-push-action` para criar as imagens `seletivo-api` e `seletivo-frontend`.
+   - Isso permite que qualquer servidor com Docker atualize a aplicação apenas com um `docker pull`.
+
 Isso garante que nenhum código quebre a build ou falhe nos testes antes de ser integrado."
 
 TEMA: FRONTEND (REACT)
