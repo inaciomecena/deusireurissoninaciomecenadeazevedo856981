@@ -1,0 +1,119 @@
+================================================================================
+GUIA DE PREPARAÇÃO - ENTREVISTA TÉCNICA (SELETIVO)
+================================================================================
+
+Este guia foi elaborado analisando o código-fonte atual do projeto "Seletivo Música"
+para ajudá-lo a pontuar nos critérios do edital.
+
+CRITÉRIOS DO EDITAL:
+1. Proficiência Técnica e Processos (0-15 pts)
+2. Habilidades Específicas e Comunicação (0-15 pts)
+3. Comportamental e Histórico (0-5 pts)
+
+--------------------------------------------------------------------------------
+PARTE 1: RESUMO DO PROJETO (O "PITCH")
+--------------------------------------------------------------------------------
+Dica: Use isso quando perguntarem "Fale sobre o projeto que você desenvolveu".
+
+"Desenvolvi uma aplicação Full Stack para gerenciamento de discografias musicais.
+A solução é composta por uma API RESTful robusta em Java com Spring Boot 3 e um
+Frontend moderno em React com TypeScript.
+
+Os principais diferenciais técnicos do meu projeto são:
+1. Containerização completa: Uso de Docker Compose para orquestrar API, Banco de Dados (Postgres) e Object Storage (MinIO).
+2. Armazenamento de Arquivos Profissional: Implementei o MinIO (compatível com S3) para upload de capas de álbuns, utilizando URLs pré-assinadas para segurança e performance.
+3. Segurança: Autenticação via JWT (JSON Web Token) com Spring Security.
+4. Interface Moderna: Frontend estilizado com Tailwind CSS, focado em UX responsiva."
+
+--------------------------------------------------------------------------------
+PARTE 2: PERGUNTAS TÉCNICAS E RESPOSTAS (Focado no seu código)
+--------------------------------------------------------------------------------
+
+TEMA: BACKEND (JAVA/SPRING)
+---------------------------
+
+P: Qual a arquitetura utilizada no backend?
+R: Utilizei uma arquitetura em camadas (Layered Architecture) clássica do Spring Boot:
+   - Controller (API): Recebe as requisições HTTP (`ArtistaController`).
+   - Service (Domain): Contém a regra de negócios (`ArtistaService`, `MinioService`).
+   - Repository (Data): Interface com o banco de dados via Spring Data JPA.
+   - DTOs: Para transferir dados e isolar a entidade de domínio da API pública.
+
+P: Por que você usou o Flyway?
+R: Para versionamento e migração do banco de dados. Isso garante que qualquer pessoa (ou ambiente) que rodar o projeto terá a mesma estrutura de tabelas, executando os scripts SQL na ordem correta (`V1__...`, `V2__...`).
+
+P: Como funciona a autenticação no seu projeto?
+R: Implementei segurança Stateless com JWT.
+   - O usuário faz login (`/auth/login`).
+   - O servidor valida e retorna um Token assinado.
+   - O frontend armazena esse token e o envia no cabeçalho `Authorization: Bearer ...` em cada requisição.
+   - No backend, o `SecurityFilter` intercepta a requisição, valida o token e libera o acesso.
+
+TEMA: ARMAZENAMENTO DE ARQUIVOS (MINIO/S3) - PONTO FORTE
+--------------------------------------------------------
+
+P: Como você lidou com o upload de imagens?
+R: Ao invés de salvar imagens no banco de dados (o que deixaria o banco pesado) ou no disco local do servidor (o que impediria escalabilidade), usei o MinIO, que é um Object Storage compatível com AWS S3.
+
+P: Tivemos um problema recente com as imagens não carregando. Como você resolveu?
+R: (Esta resposta mostra capacidade de resolução de problemas complexos):
+   "O problema era de comunicação entre containers e o navegador (CORS/Networking).
+   O backend gerava URLs apontando para o container `minio:9000` (rede interna), mas o navegador do usuário não acessa essa rede.
+   
+   Minha solução foi implementar um Proxy Reverso no Vite (Frontend).
+   1. O Backend gera a URL.
+   2. O Frontend redireciona chamadas de `/minio-images` para o servidor do MinIO.
+   3. Configurei o Docker para permitir CORS e ajustei os headers de Host.
+   Isso garantiu que tanto o upload quanto a visualização funcionassem em ambiente de desenvolvimento containerizado."
+
+TEMA: TESTES E QUALIDADE DE CÓDIGO
+----------------------------------
+
+P: Quais tipos de testes você implementou e por quê?
+R: "Priorizei Testes Unitários no Backend, focando nas regras de negócio críticas.
+
+1. Testes Unitários (Backend):
+   - Tecnologias: JUnit 5 e Mockito.
+   - Onde: Camada de Service (ex: `RegionalServiceTest`).
+   - Por que: Para validar a lógica de negócio isoladamente, sem depender de banco de dados ou rede. Usei Mocks para simular os repositórios, garantindo testes rápidos e determinísticos.
+
+2. Estratégia de Testes (Visão Crítica):
+   - O que falta: Testes de Integração (Backend) e Testes de Componentes (Frontend).
+   - Por que não fiz ainda: Dado o prazo do teste, foquei na entrega das funcionalidades completas (Full Stack) e na infraestrutura complexa (Docker/MinIO).
+   - Próximos Passos:
+     a. Backend: Adicionar `@SpringBootTest` para validar o fluxo ponta-a-ponta (Controller -> Service -> DB).
+     b. Frontend: Implementar Jest + React Testing Library para testar componentes isolados e Cypress para testes E2E (simulando um usuário real navegando)."
+
+TEMA: FRONTEND (REACT)
+----------------------
+
+P: Quais tecnologias usou no frontend e por quê?
+R:
+   - React + Vite: Pela performance de build e ecossistema rico.
+   - TypeScript: Para tipagem estática, evitando erros comuns de runtime e facilitando a manutenção.
+   - Tailwind CSS: Para estilização rápida e responsiva, mantendo o design system consistente.
+   - React Hook Form: Para gerenciamento de formulários complexos (como o cadastro de artista com múltiplos álbuns e uploads), pois reduz a re-renderização e melhora performance.
+
+--------------------------------------------------------------------------------
+PARTE 3: QUESTÕES COMPORTAMENTAIS E "VISÃO CRÍTICA"
+--------------------------------------------------------------------------------
+
+P: O que você melhoraria se tivesse mais tempo? (Visão Crítica - 0-15 pts)
+R: "Focaria em três pontos:
+   1. Testes Automatizados: Adicionaria testes unitários (JUnit/Mockito) no backend e testes de componentes (Jest/Testing Library) no frontend para garantir estabilidade.
+   2. Observabilidade: Integraria o Actuator com Prometheus/Grafana para monitorar métricas da API.
+   3. Cache: Implementaria Redis para cachear as consultas de artistas mais acessados, reduzindo carga no banco."
+
+P: Qual foi o maior desafio técnico?
+R: "A configuração da infraestrutura com Docker. Garantir que a API, o Banco e o MinIO conversassem entre si, e que o Frontend conseguisse acessar esses serviços corretamente (especialmente a questão das URLs das imagens) exigiu bastante depuração de rede e entendimento de como o Docker Networking funciona."
+
+--------------------------------------------------------------------------------
+CHECKLIST PARA A HORA DA ENTREVISTA
+--------------------------------------------------------------------------------
+1. [ ] Ambiente: Câmera ligada, fundo neutro, iluminação boa.
+2. [ ] Projeto Rodando: Deixe o `docker-compose up` rodando antes de entrar.
+3. [ ] Tabs Abertas:
+   - O sistema funcionando (localhost:5173).
+   - O código no VS Code (para mostrar se pedirem).
+   - O Swagger (localhost:8080/swagger-ui.html) para provar que a API está documentada.
+4. [ ] Postura: Fale com confiança sobre as decisões que tomamos (Proxy, DTOs, Docker).

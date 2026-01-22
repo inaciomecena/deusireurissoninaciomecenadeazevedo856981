@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: seletivo-api
+  datasource:
+    url: jdbc:postgresql://db:5432/seletivo
+    username: seletivo
+    password: seletivo
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+jwt:
+  secret: change-me-in-prod
+  expiration-minutes: 5
+  refresh-expiration-minutes: 30
+
+minio:
+  url: http://minio:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: albuns
+
