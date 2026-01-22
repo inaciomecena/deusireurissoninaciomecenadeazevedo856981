@@ -75,7 +75,7 @@ export const authService = {
       });
       
       return newAccessToken;
-    } catch (error) {
+    } catch {
       authService.logout();
       return null;
     }
