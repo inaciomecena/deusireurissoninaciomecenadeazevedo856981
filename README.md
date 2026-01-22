@@ -2,7 +2,7 @@
 
 Projeto desenvolvido como solução para o teste técnico, implementando uma arquitetura fullstack com Java (Spring Boot) no backend e React com TypeScript no frontend, orquestrados via Docker Compose.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 ### Backend
 - **Java 21** + **Spring Boot 3.2+**
@@ -29,7 +29,7 @@ Projeto desenvolvido como solução para o teste técnico, implementando uma arq
 
 ---
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 A solução segue uma arquitetura em camadas clássica no backend e componentizada no frontend.
 
@@ -46,7 +46,7 @@ A solução segue uma arquitetura em camadas clássica no backend e componentiza
 
 ---
 
-## 🛠️ Como Executar
+## Como Executar
 
 ### Pré-requisitos
 - Docker e Docker Compose instalados.
@@ -70,7 +70,7 @@ A solução segue uma arquitetura em camadas clássica no backend e componentiza
 
 ---
 
-## ✅ Funcionalidades Implementadas
+## Funcionalidades Implementadas
 
 ### Backend
 - [x] CRUD Artistas e Álbuns
@@ -91,7 +91,7 @@ A solução segue uma arquitetura em camadas clássica no backend e componentiza
 
 ---
 
-## 📝 Decisões de Projeto
+## Decisões de Projeto
 
 1. **JWT com Refresh Token**: Implementado para garantir segurança com tokens de curta duração (5 min) e renovação transparente para o usuário.
 2. **MinIO & Presigned URLs**: Para não sobrecarregar a API servindo binários, a API apenas gera links temporários seguros. O navegador baixa a imagem direto do Object Storage.
@@ -99,4 +99,7 @@ A solução segue uma arquitetura em camadas clássica no backend e componentiza
 
 ---
 
-**Autor**: Candidato
+**Autor**:
+Deusireurisson Inácio Mecena de Azevedo
+CPF: 856.981.051-20
+Inscrição:
