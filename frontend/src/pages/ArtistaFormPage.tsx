@@ -20,6 +20,16 @@ export default function ArtistaFormPage() {
     name: 'albuns'
   });
 
+  interface ArtistaFormData {
+    nome: string;
+    tipo: string;
+    albuns: {
+      titulo: string;
+      anoLancamento: number;
+      files?: FileList;
+    }[];
+  }
+
   useEffect(() => {
     if (isEdit) {
       api.get(`/artistas/${id}`).then(res => {
@@ -28,7 +38,7 @@ export default function ArtistaFormPage() {
     }
   }, [id, isEdit, reset]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: ArtistaFormData) => {
     try {
       let artistaId = id;
       

@@ -17,7 +17,7 @@ const LoginPage = () => {
     try {
       await login(username, password);
       navigate('/artistas');
-    } catch (err) {
+    } catch {
       setError('Credenciais inválidas. Tente novamente.');
     } finally {
       setLoading(false);

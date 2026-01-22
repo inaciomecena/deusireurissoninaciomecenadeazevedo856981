@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
 
@@ -16,7 +16,7 @@ export default function ArtistasListPage() {
   const [sort, setSort] = useState('nome,asc');
   const [loading, setLoading] = useState(false);
 
-  const fetchArtistas = async () => {
+  const fetchArtistas = useCallback(async () => {
     setLoading(true);
     try {
       const response = await api.get('/artistas', {
@@ -33,11 +33,11 @@ export default function ArtistasListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [busca, page, sort]);
 
   useEffect(() => {
     fetchArtistas();
-  }, [page, sort]); 
+  }, [fetchArtistas]); 
 
   return (
     <div className="space-y-8">
