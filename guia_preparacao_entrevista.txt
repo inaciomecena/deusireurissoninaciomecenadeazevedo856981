@@ -84,6 +84,28 @@ R: "Priorizei Testes Unitários no Backend, focando nas regras de negócio crít
      a. Backend: Adicionar `@SpringBootTest` para validar o fluxo ponta-a-ponta (Controller -> Service -> DB).
      b. Frontend: Implementar Jest + React Testing Library para testar componentes isolados e Cypress para testes E2E (simulando um usuário real navegando)."
 
+TEMA: DEVOPS E CI/CD
+--------------------
+
+P: Como você automatizou o processo de build e testes?
+R: "Implementei um pipeline de CI/CD usando GitHub Actions para garantir a integração contínua.
+
+1. Pipeline Configurado (.github/workflows/ci.yml):
+   - Gatilhos (Triggers): Ocorre em cada `push` ou `pull_request` na branch `main`.
+   - Jobs Paralelos: Separei o build do Backend e Frontend para rodarem simultaneamente, agilizando o feedback.
+
+2. Job Backend:
+   - Ambiente: Ubuntu Latest com JDK 17.
+   - Cache: Utilizei cache do Maven para não baixar dependências repetidamente.
+   - Passos: Compilação e execução de testes automatizados (`mvn clean verify`).
+
+3. Job Frontend:
+   - Ambiente: Ubuntu Latest com Node.js 20.
+   - Cache: Cache do npm para node_modules.
+   - Passos: Instalação limpa (`npm ci`), verificação de qualidade de código (`npm run lint`) e build de produção (`npm run build`).
+
+Isso garante que nenhum código quebre a build ou falhe nos testes antes de ser integrado."
+
 TEMA: FRONTEND (REACT)
 ----------------------
 
