@@ -1,0 +1,74 @@
+# Relatório de Análise de Código e Melhorias - Projeto Seletivo
+
+Este documento detalha a análise realizada no código fonte do projeto (Backend Java/Spring Boot e Frontend React/Vite), identificando pontos de melhoria, falhas de segurança e oportunidades para testes automatizados.
+
+---
+
+## 1. Segurança (Security)
+
+### 1.1. Armazenamento de Tokens (Frontend)
+- **Problema:** Os tokens JWT (`accessToken` e `refreshToken`) estão sendo armazenados no `localStorage` do navegador (`authFacade.ts`).
+- **Risco:** Vulnerabilidade a ataques XSS (Cross-Site Scripting). Se um atacante conseguir injetar JavaScript na página, ele pode ler os tokens e roubar a sessão do usuário.
+- **Recomendação:** Armazenar os tokens em Cookies `HttpOnly` e `Secure`. O Backend deve ser ajustado para setar esses cookies na resposta do login, ao invés de retornar no corpo do JSON.
+
+### 1.2. Vazamento de Informações em Erros (Backend)
+- **Problema:** A classe `GlobalExceptionHandler.java` retorna `ex.getMessage()` para o cliente em caso de erro genérico (`Exception.class`).
+- **Risco:** Pode expor detalhes internos da infraestrutura, nomes de tabelas do banco de dados ou stack traces parciais para atacantes.
+- **Recomendação:** Retornar uma mensagem genérica como "Erro interno do servidor" e logar o erro real apenas no servidor (usando SLF4J/Logback).
+
+### 1.3. Rate Limiting com Memory Leak (Backend)
+- **Problema:** A classe `RateLimitingFilter.java` utiliza um `ConcurrentHashMap` para armazenar janelas de tempo de requisições por usuário, mas **nunca remove** entradas antigas.
+- **Risco:** Vazamento de memória (Memory Leak). Com o tempo e muitos usuários distintos acessando, a aplicação pode sofrer um `OutOfMemoryError`.
+- **Recomendação:** Utilizar uma solução de cache com expiração automática (ex: Caffeine Cache local ou Redis para ambiente distribuído).
+
+### 1.4. Credenciais Padrão (Infraestrutura)
+- **Problema:** O arquivo `.env` e `docker-compose.yml` utilizam credenciais padrão (`minioadmin` / `minioadmin`).
+- **Risco:** Facilita acesso não autorizado se o serviço for exposto indevidamente.
+- **Recomendação:** Alterar as credenciais em ambiente de produção e usar Docker Secrets ou variáveis de ambiente injetadas por CI/CD.
+
+---
+
+## 2. Qualidade de Código e Arquitetura
+
+### 2.1. Backend
+- **Mapeamento de Objetos:** O código atual parece fazer mapeamento manual entre DTOs e Entidades.
+  - *Sugestão:* Adotar **MapStruct** ou **ModelMapper** para reduzir código repetitivo e erros humanos.
+- **Logs:** Uso de `ex.printStackTrace()` no `GlobalExceptionHandler`.
+  - *Sugestão:* Substituir por `Logger` (SLF4J) para melhor controle de níveis de log e integração com ferramentas de monitoramento.
+
+### 2.2. Frontend
+- **Tipagem TypeScript:** Algumas partes do código utilizam `any` ou tipos implícitos.
+  - *Sugestão:* Reforçar o uso de interfaces estritas para todos os componentes e respostas de API.
+- **Hardcoded Strings:** Algumas mensagens de erro e labels estão hardcoded nos componentes.
+  - *Sugestão:* Mover para arquivos de constantes ou internacionalização (i18n) se houver previsão de expansão.
+
+---
+
+## 3. Oportunidades para Testes Unitários
+
+### 3.1. Backend (Java/JUnit/Mockito)
+Prioridade Alta:
+1.  **`RateLimitingFilterTest`**: Testar se o bloqueio ocorre após o limite de requisições e se o reset da janela de tempo funciona.
+2.  **`AlbumServiceTest`**: Testar a lógica de criação de álbum e associação com artista.
+3.  **`MinioServiceTest`**: Testar a geração de URLs (internal vs external) mockando o cliente MinIO.
+
+Prioridade Média:
+1.  **`GlobalExceptionHandlerTest`**: Garantir que exceções não vazem informações sensíveis.
+2.  **`SecurityConfigTest`**: Testar se endpoints públicos estão realmente abertos e privados fechados.
+
+### 3.2. Frontend (Vitest/Testing Library)
+Prioridade Alta:
+1.  **`authFacade.test.ts`**: Testar o fluxo de login, logout e refresh token (mockando o `api.ts`).
+2.  **`ArtistaFormPage.test.tsx`**: Testar validação de formulário (campos obrigatórios, envio de dados).
+
+Prioridade Média:
+1.  **`Layout.test.tsx`**: Verificar renderização do menu baseada no estado de autenticação.
+2.  **`useAuth.test.tsx`**: Testar se o hook reflete corretamente as mudanças no `authFacade`.
+
+---
+
+## 4. Plano de Ação Sugerido
+
+1.  **Imediato:** Corrigir o Memory Leak no `RateLimitingFilter`.
+2.  **Curto Prazo:** Refatorar o Frontend para usar Cookies HttpOnly (exige mudança no Backend também).
+3.  **Médio Prazo:** Implementar cobertura de testes unitários focando nas áreas críticas listadas acima.
