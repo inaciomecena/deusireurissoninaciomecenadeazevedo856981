@@ -39,10 +39,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/seletivo
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
-      MINIO_URL: http://minio:9000
-      MINIO_EXTERNAL_URL: http://localhost:5173/minio-images
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_INTERNAL_HOST: ${MINIO_INTERNAL_HOST:-minio}
+      MINIO_INTERNAL_PORT: ${MINIO_INTERNAL_PORT:-9000}
+      MINIO_PUBLIC_HOST: ${MINIO_PUBLIC_HOST:-localhost}
+      MINIO_PUBLIC_PORT: ${MINIO_PUBLIC_PORT:-9000}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
     ports:
       - "8080:8080"
@@ -50,12 +52,15 @@ services:
       - seletivo-net
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${API_PUBLIC_URL}
     container_name: seletivo-frontend
     depends_on:
       - api
     environment:
-      VITE_API_BASE_URL: http://localhost:8080/api/v1
+      - NODE_ENV=production
     ports:
       - "5173:5173"
     networks:

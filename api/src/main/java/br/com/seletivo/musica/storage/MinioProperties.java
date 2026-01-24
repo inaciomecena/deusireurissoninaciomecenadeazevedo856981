@@ -7,26 +7,52 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "minio")
 public class MinioProperties {
 
-    private String url;
-    private String externalUrl;
+    private String internalHost;
+    private int internalPort;
+    private String publicHost;
+    private int publicPort;
     private String accessKey;
     private String secretKey;
     private String bucket;
 
-    public String getUrl() {
-        return url;
+    public String getInternalUrl() {
+        return String.format("http://%s:%d", internalHost, internalPort);
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public String getPublicUrl() {
+        return String.format("http://%s:%d", publicHost, publicPort);
     }
 
-    public String getExternalUrl() {
-        return externalUrl;
+    public String getInternalHost() {
+        return internalHost;
     }
 
-    public void setExternalUrl(String externalUrl) {
-        this.externalUrl = externalUrl;
+    public void setInternalHost(String internalHost) {
+        this.internalHost = internalHost;
+    }
+
+    public int getInternalPort() {
+        return internalPort;
+    }
+
+    public void setInternalPort(int internalPort) {
+        this.internalPort = internalPort;
+    }
+
+    public String getPublicHost() {
+        return publicHost;
+    }
+
+    public void setPublicHost(String publicHost) {
+        this.publicHost = publicHost;
+    }
+
+    public int getPublicPort() {
+        return publicPort;
+    }
+
+    public void setPublicPort(int publicPort) {
+        this.publicPort = publicPort;
     }
 
     public String getAccessKey() {
