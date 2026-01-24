@@ -36,8 +36,11 @@ jwt:
   refresh-expiration-minutes: 30
 
 minio:
-  url: http://minio:9000
-  access-key: minioadmin
-  secret-key: minioadmin
+  internal-host: ${MINIO_INTERNAL_HOST:minio}
+  internal-port: ${MINIO_INTERNAL_PORT:9000}
+  public-host: ${MINIO_PUBLIC_HOST:localhost}
+  public-port: ${MINIO_PUBLIC_PORT:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
   bucket: albuns
 

@@ -23,13 +23,22 @@ public class MinioService {
 
     private final MinioProperties properties;
     private final AlbumCapaRepository albumCapaRepository;
-    private final MinioClient minioClient;
+    private final MinioClient internalClient;
+    private final MinioClient publicClient;
 
     public MinioService(MinioProperties properties, AlbumCapaRepository albumCapaRepository) {
         this.properties = properties;
         this.albumCapaRepository = albumCapaRepository;
-        this.minioClient = MinioClient.builder()
-                .endpoint(properties.getUrl())
+        
+        // Cliente para operações internas (upload, gerenciamento de bucket)
+        this.internalClient = MinioClient.builder()
+                .endpoint(properties.getInternalUrl())
+                .credentials(properties.getAccessKey(), properties.getSecretKey())
+                .build();
+
+        // Cliente para gerar URLs públicas (acessíveis pelo navegador)
+        this.publicClient = MinioClient.builder()
+                .endpoint(properties.getPublicUrl())
                 .credentials(properties.getAccessKey(), properties.getSecretKey())
                 .build();
     }
@@ -37,9 +46,9 @@ public class MinioService {
     @PostConstruct
     public void init() {
         try {
-            boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(properties.getBucket()).build());
+            boolean found = internalClient.bucketExists(BucketExistsArgs.builder().bucket(properties.getBucket()).build());
             if (!found) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(properties.getBucket()).build());
+                internalClient.makeBucket(MakeBucketArgs.builder().bucket(properties.getBucket()).build());
             }
         } catch (Exception e) {
             // Em testes pode falhar se o MinIO não estiver up, mas em prod o docker-compose garante a ordem (depends_on).
@@ -61,7 +70,7 @@ public class MinioService {
     private AlbumCapa uploadCapa(Album album, MultipartFile arquivo) {
         String objectName = "album/" + album.getId() + "/" + UUID.randomUUID();
         try {
-            minioClient.putObject(
+            internalClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(properties.getBucket())
                             .object(objectName)
@@ -85,7 +94,8 @@ public class MinioService {
     // Isso evita que o tráfego de download passe pela nossa API, aliviando o servidor.
     public String gerarUrlAssinada(AlbumCapa capa, int minutosExpiracao) {
         try {
-            String url = minioClient.getPresignedObjectUrl(
+            // Usa o cliente público para gerar a URL com o host correto (ex: localhost ou IP externo)
+            return publicClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(properties.getBucket())
                             .object(capa.getObjetoMinio())
@@ -93,12 +103,6 @@ public class MinioService {
                             .method(Method.GET)
                             .build()
             );
-            
-            // Substitui a URL interna pela externa se configurada
-            if (properties.getExternalUrl() != null && !properties.getExternalUrl().isBlank()) {
-                return url.replace(properties.getUrl(), properties.getExternalUrl());
-            }
-            return url;
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar URL pré-assinada", e);
         }

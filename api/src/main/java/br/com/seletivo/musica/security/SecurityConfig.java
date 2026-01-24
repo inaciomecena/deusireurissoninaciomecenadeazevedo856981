@@ -61,8 +61,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Permitir o frontend no host local, tanto na porta 3000 (comum) quanto 5173 (Vite)
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
+        // Permitir o frontend no host local e IP de rede local
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:3000", 
+            "http://localhost:5173", 
+            "http://192.168.1.10:5173" // Adicionado IP específico
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control"));
         configuration.setExposedHeaders(List.of("Authorization"));
