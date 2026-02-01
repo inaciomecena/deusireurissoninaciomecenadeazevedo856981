@@ -100,6 +100,9 @@ A solução segue uma arquitetura em camadas clássica no backend e componentiza
 ---
 
 **Autor**:
+
 Deusireurisson Inácio Mecena de Azevedo
+
 CPF: 856.981.051-20
-Inscrição:
+
+Inscrição: 16364
