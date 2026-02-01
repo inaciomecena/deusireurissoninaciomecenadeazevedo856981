@@ -24,6 +24,7 @@ public class MinioService {
     private final MinioProperties properties;
     private final AlbumCapaRepository albumCapaRepository;
     private final MinioClient internalClient;
+    private final MinioClient presignerClient;
 
     public MinioService(MinioProperties properties, AlbumCapaRepository albumCapaRepository) {
         this.properties = properties;
@@ -35,9 +36,13 @@ public class MinioService {
                 .credentials(properties.getAccessKey(), properties.getSecretKey())
                 .build();
 
-        // Cliente público removido pois causava erro de conexão ao tentar conectar em localhost dentro do container.
-        // Usaremos o internalClient e faremos a substituição do host na URL gerada.
-        this.publicClient = null; 
+        // Cliente específico para gerar URLs assinadas usando o host público.
+        // Este cliente NÃO deve ser usado para operações de rede (upload/download/bucketExists)
+        // pois o host público (ex: localhost) pode não ser acessível de dentro do container.
+        this.presignerClient = MinioClient.builder()
+                .endpoint(properties.getPublicUrl())
+                .credentials(properties.getAccessKey(), properties.getSecretKey())
+                .build();
     }
 
     @PostConstruct
@@ -91,8 +96,8 @@ public class MinioService {
     // Isso evita que o tráfego de download passe pela nossa API, aliviando o servidor.
     public String gerarUrlAssinada(AlbumCapa capa, int minutosExpiracao) {
         try {
-            // Usa o cliente interno para gerar a URL (que apontará para o host interno)
-            String url = internalClient.getPresignedObjectUrl(
+            // Usa o cliente configurado com host público para gerar a URL correta diretamente
+            return presignerClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(properties.getBucket())
                             .object(capa.getObjetoMinio())
@@ -100,9 +105,6 @@ public class MinioService {
                             .expiry(minutosExpiracao * 60)
                             .build()
             );
-            
-            // Substitui o host interno pelo host público
-            return url.replace(properties.getInternalUrl(), properties.getPublicUrl());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
