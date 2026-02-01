@@ -19,6 +19,7 @@ scrape_configs:
       - targets: ['postgres-exporter:9187']
 
   - job_name: 'blackbox'
+    scrape_interval: 10s
     metrics_path: /probe
     params:
       module: [http_2xx]
@@ -33,4 +34,3 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115
-

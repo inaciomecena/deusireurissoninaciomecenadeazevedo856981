@@ -37,13 +37,13 @@
               "options": {
                 "0": {
                   "color": "red",
-                  "index": 0,
-                  "text": "DOWN"
+                  "index": 1,
+                  "text": "Down"
                 },
                 "1": {
                   "color": "green",
-                  "index": 1,
-                  "text": "UP"
+                  "index": 0,
+                  "text": "Up"
                 }
               },
               "type": "value"
@@ -67,12 +67,16 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 8,
         "x": 0,
         "y": 0
       },
       "id": 1,
       "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -80,9 +84,7 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showthresholdMarkers": true,
-        "text": {}
+        "textMode": "auto"
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -92,13 +94,13 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "probe_success{instance=\"http://frontend:5173\"}",
+          "expr": "probe_success",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Frontend Status",
+      "title": "Frontend Availability",
       "type": "stat"
     },
     {
@@ -151,17 +153,18 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 1
               }
             ]
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
+        "w": 16,
+        "x": 8,
         "y": 0
       },
       "id": 2,
@@ -184,18 +187,19 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "probe_duration_seconds{instance=\"http://frontend:5173\"}",
-          "legendFormat": "__auto",
+          "expr": "probe_duration_seconds",
+          "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Frontend Response Time (s)",
+      "title": "Response Time",
       "type": "timeseries"
     }
   ],
-  "refresh": "",
-  "schemaVersion": 39,
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
   "tags": [],
   "templating": {
     "list": []
@@ -206,7 +210,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Frontend",
+  "title": "Frontend Status",
   "uid": "frontend-status",
   "version": 1,
   "weekStart": ""
