@@ -115,6 +115,9 @@ Para garantir o carregamento correto das imagens (evitando bloqueios de CORS/ORB
 ---
 
 **Autor**:
+
 Deusireurisson Inácio Mecena de Azevedo
+
 CPF: 856.981.051-20
-Inscrição:
+
+Inscrição: 16364
