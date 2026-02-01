@@ -24,7 +24,6 @@ public class MinioService {
     private final MinioProperties properties;
     private final AlbumCapaRepository albumCapaRepository;
     private final MinioClient internalClient;
-    private final MinioClient publicClient;
 
     public MinioService(MinioProperties properties, AlbumCapaRepository albumCapaRepository) {
         this.properties = properties;
@@ -36,11 +35,9 @@ public class MinioService {
                 .credentials(properties.getAccessKey(), properties.getSecretKey())
                 .build();
 
-        // Cliente para gerar URLs públicas (acessíveis pelo navegador)
-        this.publicClient = MinioClient.builder()
-                .endpoint(properties.getPublicUrl())
-                .credentials(properties.getAccessKey(), properties.getSecretKey())
-                .build();
+        // Cliente público removido pois causava erro de conexão ao tentar conectar em localhost dentro do container.
+        // Usaremos o internalClient e faremos a substituição do host na URL gerada.
+        this.publicClient = null; 
     }
 
     @PostConstruct
@@ -94,17 +91,21 @@ public class MinioService {
     // Isso evita que o tráfego de download passe pela nossa API, aliviando o servidor.
     public String gerarUrlAssinada(AlbumCapa capa, int minutosExpiracao) {
         try {
-            // Usa o cliente público para gerar a URL com o host correto (ex: localhost ou IP externo)
-            return publicClient.getPresignedObjectUrl(
+            // Usa o cliente interno para gerar a URL (que apontará para o host interno)
+            String url = internalClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(properties.getBucket())
                             .object(capa.getObjetoMinio())
-                            .expiry(minutosExpiracao * 60) // Converte para segundos
                             .method(Method.GET)
+                            .expiry(minutosExpiracao * 60)
                             .build()
             );
+            
+            // Substitui o host interno pelo host público
+            return url.replace(properties.getInternalUrl(), properties.getPublicUrl());
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar URL pré-assinada", e);
+            e.printStackTrace();
+            return null;
         }
     }
 }

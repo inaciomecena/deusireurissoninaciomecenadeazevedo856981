@@ -67,9 +67,10 @@ export default function ArtistaFormPage() {
       }
 
       navigate(isEdit ? `/artistas/${id}` : '/artistas');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao salvar", error);
-      alert('Erro ao salvar. Verifique o console.');
+      const errorMessage = error.response?.data?.message || error.message || 'Erro desconhecido';
+      alert(`Erro ao salvar: ${errorMessage}`);
     }
   };
 

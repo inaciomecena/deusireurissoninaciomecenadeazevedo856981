@@ -66,6 +66,57 @@ services:
     networks:
       - seletivo-net
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: seletivo-prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - seletivo-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: seletivo-grafana
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    networks:
+      - seletivo-net
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: seletivo-node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - seletivo-net
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: seletivo-blackbox-exporter
+    ports:
+      - "9115:9115"
+    networks:
+      - seletivo-net
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: seletivo-postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://user:password@db:5432/seletivo?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - seletivo-net
+
 volumes:
   db_data:
   minio_data:
