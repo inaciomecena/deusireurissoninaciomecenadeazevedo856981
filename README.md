@@ -52,14 +52,37 @@ A solução segue uma arquitetura em camadas clássica no backend e componentiza
 - Docker e Docker Compose instalados.
 
 ### Passos
-1. Clone o repositório.
-2. Na raiz do projeto, execute:
+
+1. **Configuração Inicial (Importante!)**:
+   Antes de iniciar a aplicação, configure as variáveis de ambiente para garantir o funcionamento correto das imagens (MinIO).
+   
+   - **Backend**: No arquivo `.env` na raiz do projeto, ajuste o host público:
+     ```env
+     MINIO_PUBLIC_HOST=127.0.0.1
+     ```
+   
+   - **Frontend**: No arquivo `frontend/.env`, defina a URL do MinIO:
+     ```env
+     VITE_MINIO_URL=http://127.0.0.1:9000
+     ```
+
+2. **Execução Automática (Windows)**:
+   Na raiz do projeto, execute o script de inicialização:
+   ```bash
+   iniciar_aplicacao.bat
+   ```
+   *Este script irá parar containers antigos, reconstruir as imagens e iniciar todo o ambiente.*
+
+3. **Alternativa Manual**:
+   Se preferir, execute via Docker Compose:
    ```bash
    docker-compose up --build
    ```
-3. Aguarde todos os containers subirem (API, DB, MinIO, Frontend).
+
+4. Aguarde todos os containers subirem.
 
 ### Configuração de Rede (MinIO e Imagens)
+*(Detalhes adicionais caso precise alterar para acesso via rede local...)*
 Para garantir o carregamento correto das imagens (evitando bloqueios de CORS/ORB) ou para acessar via rede local:
 
 1. **Backend**: No arquivo `.env` na raiz do projeto, defina o host público do MinIO:
