@@ -59,6 +59,21 @@ A solução segue uma arquitetura em camadas clássica no backend e componentiza
    ```
 3. Aguarde todos os containers subirem (API, DB, MinIO, Frontend).
 
+### Configuração de Rede (MinIO e Imagens)
+Para garantir o carregamento correto das imagens (evitando bloqueios de CORS/ORB) ou para acessar via rede local:
+
+1. **Backend**: No arquivo `.env` na raiz do projeto, defina o host público do MinIO:
+   ```env
+   MINIO_PUBLIC_HOST=127.0.0.1  # Use 127.0.0.1 para local ou seu IP de rede (ex: 192.168.x.x)
+   ```
+
+2. **Frontend**: No arquivo `frontend/.env`, defina a URL base do MinIO:
+   ```env
+   VITE_MINIO_URL=http://127.0.0.1:9000 # Deve corresponder ao host configurado acima
+   ```
+
+> **Nota**: Após alterar estes arquivos, reinicie os containers (`docker-compose up -d`) para aplicar as mudanças.
+
 ### Acessos
 - **Frontend**: [http://localhost:5173](http://localhost:5173)
 - **API Swagger**: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)

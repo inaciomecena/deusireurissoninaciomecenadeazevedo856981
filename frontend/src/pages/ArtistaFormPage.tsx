@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import api from '../services/api';
 
+
 export default function ArtistaFormPage() {
   const { id } = useParams();
   const isEdit = !!id;
@@ -67,9 +68,10 @@ export default function ArtistaFormPage() {
       }
 
       navigate(isEdit ? `/artistas/${id}` : '/artistas');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao salvar", error);
-      alert('Erro ao salvar. Verifique o console.');
+      const errorMessage = error.response?.data?.message || error.message || 'Erro desconhecido';
+      alert(`Erro ao salvar: ${errorMessage}`);
     }
   };
 

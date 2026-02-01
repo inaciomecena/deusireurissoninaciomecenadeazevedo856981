@@ -79,34 +79,31 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: seletivo-grafana
-    depends_on:
-      - prometheus
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
     networks:
       - seletivo-net
+    depends_on:
+      - prometheus
 
   node-exporter:
     image: prom/node-exporter:latest
     container_name: seletivo-node-exporter
-    restart: unless-stopped
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     ports:
       - "9100:9100"
+    networks:
+      - seletivo-net
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: seletivo-blackbox-exporter
+    ports:
+      - "9115:9115"
     networks:
       - seletivo-net
 
@@ -117,20 +114,6 @@ services:
       DATA_SOURCE_NAME: "postgresql://user:password@db:5432/seletivo?sslmode=disable"
     ports:
       - "9187:9187"
-    networks:
-      - seletivo-net
-    depends_on:
-      - db
-
-  blackbox-exporter:
-    image: prom/blackbox-exporter:latest
-    container_name: seletivo-blackbox-exporter
-    ports:
-      - "9115:9115"
-    volumes:
-      - ./monitoring/blackbox:/etc/blackbox_exporter
-    command:
-      - '--config.file=/etc/blackbox_exporter/blackbox.yml'
     networks:
       - seletivo-net
 
