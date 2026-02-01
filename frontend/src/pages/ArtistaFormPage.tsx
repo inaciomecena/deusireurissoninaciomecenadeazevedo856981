@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { AxiosError } from 'axios';
 import api from '../services/api';
 
 
@@ -70,9 +71,10 @@ export default function ArtistaFormPage() {
       }
 
       navigate(isEdit ? `/artistas/${id}` : '/artistas');
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao salvar", error);
-      const errorMessage = error.response?.data?.message || error.message || 'Erro desconhecido';
+      const err = error as AxiosError<{ message: string }>;
+      const errorMessage = err.response?.data?.message || err.message || 'Erro desconhecido';
       alert(`Erro ao salvar: ${errorMessage}`);
     }
   };
