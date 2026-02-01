@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import api from '../services/api';
 
+
 export default function ArtistaFormPage() {
   const { id } = useParams();
   const isEdit = !!id;
